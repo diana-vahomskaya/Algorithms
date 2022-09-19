@@ -57,38 +57,36 @@ namespace Money
             Num_Wallets = Int32.Parse(Console.ReadLine()); //чтение с экрана кол-ва кошельков
             Money = Console.ReadLine().Split(' ').Select(int.Parse).ToArray();// чтение данных о монетах
             SumMoney = Int32.Parse(Console.ReadLine());// чтение общей суммы денег
-            count = Money.Sum();
-
-            if(count < SumMoney) // если сумма подсчитанных монет меньше чем общее кол-во денег то возврат нет, т.к. такого быть не может
+            Array.Sort(Money); //отсортируем массив по возрастанию 
+            SumMoney = SumMoney - Money[Num_Wallets - 1]; //вычитаем из суммы самый большой кошелек, и работаем с оставшимися
+            bool[] helparray = new bool[(int)(Math.Pow(10, 4))]; //крч вспомогателный массив, из булевских переменных с длиной массива в 10^4 по условию задачи ( общее кол-во денег, крч массив суммы различных кошельков)
+            helparray[0] = true; //крч прикол в последнем примере где 2\ 2\ 3\ 3\, 3 - 3 = 0 но ответ да т.к. кошель вложенный
+            if (SumMoney >= 0) //если мы вычтем самый большой кошель из общей суммы и общая сумма станет отрицательная мы не сможем раскидать деньги по кошелькам ответ нет, поэтому тут условие на больше или равно в других случаях ответ нет
             {
-                Console.WriteLine("No"); return;
-            }
-            else if(count == SumMoney) // если сумма подсчитанных монет = общее кол - во денег то возврат yes
-            {
-                Console.WriteLine("Yes");
+                for (int i = 0; i < Money.Length - 1; i++) //проходим по оставшимся кошелькам - 1 самый большой, т.к. из общей суммы мы его исключили
+                {
+                    for (int j = 0; j < helparray.Length; j++) //массив суммирования кошельков 
+                    {
+                        if (helparray[j] == true && j + Money[i] < helparray.Length)
+                        {
+                            helparray[j + Money[i]] = true; //крч передаем true в элемент суммирования т.е. 1 + 0 = 1 => true, в данном случае мы рассматриваем наполняемость кошельков вложенными или суммируем и сравниваем, крч ебала я думать
+                        }
+                    }
+                }
+                if (helparray[SumMoney] == true) //если элемент helparray с индексом общей суммы - большой кошель в положении правды то мы данные восстановились правильно
+                {
+                    Console.WriteLine("Yes");
+                }
+                else
+                {
+                    Console.WriteLine("No");
+                }
             }
             else
             {
-                Console.Write(CheckWalletsIn(SumMoney, Money, count, 0) ? "Yes" : "No");
+                Console.WriteLine("No");
             }
         }
 
-        /// <summary>
-        /// Проверить распределение денег по кошелькам
-        /// </summary>
-        /// <param name="SumMoney">Общее количество денег</param>
-        /// <param name="Money">Кошельки</param>
-        /// <param name="count">Максимально возможное количество денег во всех кошельках</param>
-        /// <param name="countWallAll">Индекс кошелька</param>
-        /// <returns></returns>
-        private static bool CheckWalletsIn(int SumMoney, int[] Money, int count, int countWallAll) 
-        {
-            if(countWallAll == Money.Length || count < SumMoney)
-            {
-                return false;
-            }
-            // еще пара условий, но пока не пойму условие задачи.
-            return true;
-        }
     }
 }
