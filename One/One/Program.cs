@@ -32,6 +32,7 @@
 
 using System;
 using System.IO;
+using System.Numerics;
 
 namespace One
 {
@@ -39,15 +40,49 @@ namespace One
     {
         static void Main(string[] args)
         {
-            int[] paramNM = Array.ConvertAll(Console.ReadLine().Split(' '), int.Parse); // первая строка состоящая из n (кол-во элементов) и m (кол-во типов) 
-            int[][] types = new int[paramNM[1]][]; //paramNM[1] - элемент из массива равный m (кол-во типов)
-            for (int i = 0; i< paramNM[1]; i++)
+            int[] paramNM = Array.ConvertAll(Console.ReadLine().Split(' '), int.Parse); // первая строка состоящая из n (кол-во элементов) и m (кол-во типов)
+            List<List<int>> Perm_M = new List<List<int>>();
+            for (int i = 0; i < paramNM[1]; i++)
             {
-                types[i] = Array.ConvertAll(Console.ReadLine().Split(' '), s => int.Parse(s)); // получение перестановок
+                Perm_M.Add(Console.ReadLine().Split(' ').Select(s => int.Parse(s) - 1).ToList());
             }
-            int paramK = int.Parse(Console.ReadLine());
-            int[] queueK = Array.ConvertAll(Console.ReadLine().Split(' '), s => int.Parse(s)); // порядок применения перестановок
+            Console.ReadLine();
+            int[] queueK = Array.ConvertAll(Console.ReadLine().Split(' '), s => int.Parse(s) - 1); // порядок применения перестановок
+            List<List<int>> Perm_K = new List<List<int>>();
+            for (int i = 0; i < queueK.Length; i++)
+            {
+                if (i == 0) Perm_K.Add(Perm_M[queueK[i]]);
+                else Perm_K.Add(Permutations_Multiply(Perm_K[i - 1], Perm_M[queueK[i]]));
+            }
+            for(int i = 0; i < queueK.Length; i++)
+            {
+                List<int> reverse = new List<int>(Permutation_Reverse(Perm_K[i]));
+                List<int> remove = new List<int>(Permutations_Multiply(reverse, Perm_K[queueK.Length - 1]));
 
+                if (i == 0) Console.WriteLine(remove[0] + 1);
+                else
+                {
+                    Console.WriteLine(Permutations_Multiply(Perm_K[i - 1], remove)[0] + 1);
+                }
+            }
+        }
+        public static List<int> Permutation_Reverse(List<int>one)
+        {
+            List<int> result = new List<int>(new int[one.Count]);
+            for(int i = 0; i < one.Count; i++)
+            {
+                result[one[i]] = i;
+            }
+            return result;
+        }
+        public static List<int> Permutations_Multiply(List<int> one, List<int> two)
+        {
+            List<int> perm = new List<int>();
+            for(int i = 0; i < one.Count; i++)
+            {
+                perm.Add(two[one[i]]);
+            }
+            return perm;
         }
     }
 }
